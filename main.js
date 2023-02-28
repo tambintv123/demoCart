@@ -1,14 +1,24 @@
+let productList = [];
 let cartList = [];
-const productList = [
-  { id: "1", name: "iphone", price: 2000000, quantity: 1 },
-  { id: "2", name: "samsung", price: 1000000, quantity: 1 },
-  { id: "3", name: "demo", price: 4000000, quantity: 1 },
-];
+getProduct();
+
+// Hàm call API từ data
+function getProduct() {
+  axios({
+    method: "GET",
+    url: "https://63f2d93b4f17278c9a2cedf5.mockapi.io/api/products",
+  }).then((response) => {
+    productList = response.data;
+    console.log(productList);
+    console.log(response.data);
+    renderProducts(response.data);
+  });
+}
 
 const getEle = (id) => document.getElementById(id);
 
-const renderData = () => {
-  return productList.reduce((res, val) => {
+const renderProducts = (array) => {
+  let html = array.reduce((res, val) => {
     return (
       res +
       `
@@ -26,48 +36,8 @@ const renderData = () => {
         `
     );
   }, "");
+  getEle("renderProduct").innerHTML = html;
 };
-let output = renderData();
-
-getEle("renderProduct").innerHTML = output;
-
-// add item vao gio hang
-function addToCart(id) {
-  const cartItem = productList.filter((item) => item.id == id);
-
-  let item = new CartItem(
-    cartItem[0].id,
-    cartItem[0].name,
-    cartItem[0].price,
-    cartItem[0].quantity
-  );
-
-  // check xem item them vao co trong mang cua gio hang chua.
-  // neu chua thi add vao
-  // neu roi thi tang so luong
-  if (!cartList.some((val) => val.id === id)) {
-    cartList.push(item);
-  } else {
-    let index = cartList.findIndex((val) => val.id === id);
-    cartList[index].quantity += 1;
-  }
-
-  setLocal();
-  renderCartItem();
-  getCount();
-}
-
-// luu vao localStorage
-function setLocal() {
-  localStorage.setItem("listCart", JSON.stringify(cartList));
-}
-
-// lay item tu localStorage
-function getLocal() {
-  let cartList = localStorage.getItem("listCart");
-  if (cartList === null) return;
-  return cartList;
-}
 
 // render gio hang
 const renderCartItem = () => {
@@ -111,7 +81,45 @@ const renderCartItem = () => {
   }
 };
 
-// giam so luong
+// add item vao gio hang
+function addToCart(id) {
+  const cartItem = productList.filter((item) => item.id === id);
+  console.log(cartItem[0].id);
+  let item = new CartItem(
+    cartItem[0].id,
+    cartItem[0].name,
+    cartItem[0].price,
+    1
+  );
+
+  // check xem item them vao co trong mang cua gio hang chua.
+  // neu chua thi add vao
+  // neu roi thi tang so luong
+  if (!cartList.some((val) => val.id === id)) {
+    cartList.push(item);
+  } else {
+    let index = cartList.findIndex((val) => val.id === id);
+    cartList[index].quantity += 1;
+  }
+
+  setLocal();
+  renderCartItem();
+  getCount();
+}
+
+// luu vao localStorage
+function setLocal() {
+  localStorage.setItem("listCart", JSON.stringify(cartList));
+}
+
+// lay item tu localStorage
+function getLocal() {
+  let cartList = localStorage.getItem("listCart");
+  if (cartList === null) return;
+  return cartList;
+}
+
+/// giam so luong
 function decrease(id) {
   let index = cartList.findIndex((item) => item.id === id);
   if (index === -1) return;
