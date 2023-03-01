@@ -102,7 +102,6 @@ function addToCart(id) {
     cartList[index].quantity += 1;
   }
 
-  setLocal();
   renderCartItem(cartList);
   getCount(cartList);
 }
