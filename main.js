@@ -40,7 +40,7 @@ const renderProducts = (array) => {
 };
 
 // render gio hang
-const renderCartItem = () => {
+const renderCartItem = (cartList) => {
   if (cartList.length > 0) {
     const res = cartList.reduce((res, val) => {
       return (
@@ -54,7 +54,7 @@ const renderCartItem = () => {
                         <button type='button' class='btn decrease' onclick="decrease('${
                           val.id
                         }')">-</button>
-                            <span> ${val.quantity < 1 ? 1 : val.quantity}</span>
+                            <span> ${val.quantity}</span>
                         <button type='button' class='btn increase' onclick="increase('${
                           val.id
                         }')">+</button>
@@ -103,8 +103,8 @@ function addToCart(id) {
   }
 
   setLocal();
-  renderCartItem();
-  getCount();
+  renderCartItem(cartList);
+  getCount(cartList);
 }
 
 // luu vao localStorage
@@ -112,21 +112,18 @@ function setLocal() {
   localStorage.setItem("listCart", JSON.stringify(cartList));
 }
 
-// lay item tu localStorage
-function getLocal() {
-  let cartList = localStorage.getItem("listCart");
-  if (cartList === null) return;
-  return cartList;
-}
-
 /// giam so luong
 function decrease(id) {
-  let index = cartList.findIndex((item) => item.id === id);
+  let index = cartList.findIndex((item) => {
+    return item.id === id;
+  });
   if (index === -1) return;
-
-  cartList[index].quantity -= 1;
-  renderCartItem();
-  getCount();
+  cartList[index].quantity--;
+  if (cartList[index].quantity < 1) {
+    cartList.splice(index, 1);
+  }
+  renderCartItem(cartList);
+  getCount(cartList);
 }
 
 // tang so luong
@@ -134,22 +131,24 @@ function increase(id) {
   let index = cartList.findIndex((item) => item.id === id);
   if (index === -1) return;
   cartList[index].quantity += 1;
-  renderCartItem();
-  getCount();
+  renderCartItem(cartList);
+  getCount(cartList);
 }
 
 // xoa khoi gio hang
 function removeProduct(id) {
   cartList = cartList.filter((item) => item.id !== id);
   setLocal();
-  renderCartItem();
-  getCount();
+  renderCartItem(cartList);
+  getCount(cartList);
 }
 
 // dem so luong trong gio hang hien thi len UI
-function getCount() {
-  let count = cartList.reduce((res, val) => res + val.quantity, 0);
-  getEle("count").innerHTML = count <= 0 ? 0 : count;
+function getCount(cartList) {
+  let count = cartList.reduce((res, product) => {
+    return res + product.quantity;
+  }, 0);
+  document.getElementById("count").innerHTML = count;
 }
 
-getCount();
+getCount(cartList);
